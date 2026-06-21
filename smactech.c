@@ -138,6 +138,28 @@ int main() {
 
       if (ptech > -1) {
         if (techlist[ptech].aimil >
+            (techlist[ptech].aicolonize +
+             techlist[ptech].aiinfra +
+             techlist[ptech].aitech) / 3 - 1)
+          aimil++;
+        if (techlist[ptech].aitech >
+            (techlist[ptech].aicolonize +
+             techlist[ptech].aimil +
+             techlist[ptech].aiinfra) / 3 - 1)
+          aitech++;
+        if (techlist[ptech].aiinfra >
+            (techlist[ptech].aicolonize +
+             techlist[ptech].aimil +
+             techlist[ptech].aitech) / 3 - 1)
+          aiinfra++;
+        if (techlist[ptech].aicolonize >
+            (techlist[ptech].aimil +
+             techlist[ptech].aitech +
+             techlist[ptech].aiinfra) / 3 - 1)
+          aicolonize++;
+      }
+      if (ptech > -1) {
+        if (techlist[ptech].aimil >
                  (techlist[ptech].aicolonize +
                   techlist[ptech].aiinfra +
                   techlist[ptech].aitech) / 3)
@@ -156,28 +178,6 @@ int main() {
             (techlist[ptech].aimil +
              techlist[ptech].aitech +
              techlist[ptech].aiinfra) / 3)
-          aicolonize++;
-      }
-      if (stech > -1) {
-        if (techlist[stech].aimil >
-            (techlist[stech].aicolonize +
-             techlist[stech].aiinfra +
-             techlist[stech].aitech) / 3 - 1)
-          aimil++;
-        if (techlist[stech].aitech >
-            (techlist[stech].aicolonize +
-             techlist[stech].aimil +
-             techlist[stech].aiinfra) / 3 - 1)
-          aitech++;
-        if (techlist[stech].aiinfra >
-            (techlist[stech].aicolonize +
-             techlist[stech].aimil +
-             techlist[stech].aitech) / 3 - 1)
-          aiinfra++;
-        if (techlist[stech].aicolonize >
-            (techlist[stech].aimil +
-             techlist[stech].aitech +
-             techlist[stech].aiinfra) / 3 - 1)
           aicolonize++;
       }
       if (stech > -1) {
