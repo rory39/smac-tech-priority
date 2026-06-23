@@ -1,16 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 
-#define addtech(a,b,c) {0,a,b,c,0,0,0,0}
 struct tech {
-  short status;
-  char name[16];
-  char req1[16];
-  char req2[16];
-  short aimil;
-  short aitech;
-  short aiinfra;
-  short aicolonize;
+  short status;// 1 is finished, 0 is not finished
+  char name[16];// Tech name
+  char req1[16];// (ptech) Primary tech
+  char req2[16];// (stech) Secondary tech
+  short aimil;// military ai priority
+  short aitech;// technology ai priority
+  short aiinfra;// infrastructure ai priority
+  short aicolonize;// growth/colonize ai priority
 };
 
 // Helper function to find a tech index safely, returns -1 if not found
@@ -24,6 +23,9 @@ int find_tech(struct tech list[], int count, const char* name) {
   return -1;
 }
 int main() {
+
+#define addtech(a,b,c) {0,a,b,c,0,0,0,0}
+
   struct tech techlist[] = {
     {1,"Biogen","None","None", 0,3,2,2},
     {1,"Indust","None","None", 2,1,3,0},
@@ -32,76 +34,76 @@ int main() {
     {1,"Psych","None","None",  0,1,3,2},
     {1,"Mobile","None","None", 2,0,0,3},
     {1,"Ecology","None","None",0,1,2,3},
-    addtech("Super",  "OptComp","Indust"),
-    addtech("Chaos",  "Physic", "InfNet"),
-    addtech("E=Mc2",  "Super",  "Subat"),
-    addtech("Fusion", "Algor",  "Super"),
-    addtech("Alloys", "Subat",  "IndAuto"),
-    addtech("Subat",  "Chemist","Poly"),
-    addtech("Chemist","Indust", "Physic"),
-    addtech("Surface","Unified","IndRob"),
-    addtech("Metal",  "ProbMec","DocInit"),
-    addtech("String", "Chaos",  "Cyber"),
-    addtech("MilAlg", "DocFlex","OptComp"),
-    addtech("Magnets","String", "Alloys"),
-    addtech("MatComp","Metal",  "NanoMin"),
-    addtech("Unified","Magnets","E=Mc2"),
-    addtech("Gravity","QuanMac","MindMac"),
-    addtech("Poly",   "Indust", "InfNet"),
-    addtech("AGrav",  "Gravity","DigSent"),
-    addtech("Quantum","Surface","PlaEcon"),
-    addtech("SingMec","Create", "HAL9000"),
-    addtech("ConSing","SingMec","AGrav"),
-    addtech("TempMec","Eudaim", "Matter"),
-    addtech("ProbMec","DocSec", "Algor"),
-    addtech("Algor",  "MilAlg", "Cyber"),
-    addtech("Solids", "MatComp","Space"),
-    addtech("PlaNets","InfNet", "None"),
-    addtech("DigSent","IndRob", "MindMac"),
-    addtech("HAL9000","Space",  "DigSent"),
-    addtech("DocInit","DocFlex","IndAuto"),
-    addtech("DocFlex","Mobile", "None"),
-    addtech("Integ",  "EthCalc","DocLoy"),
-    addtech("Fossil", "Chemist","Gene"),
-    addtech("DocAir", "Fossil", "DocFlex"),
-    addtech("DocSec", "E=Mc2",  "Alloys"),
-    addtech("MindMac","DocAir", "Neural"),
-    addtech("NanoMin","Magnets","SupLube"),
-    addtech("DocLoy", "Mobile", "Psych"),
-    addtech("EthCalc","Psych",  "None"),
-    addtech("IndEcon","Indust", "None"),
-    addtech("IndAuto","IndEcon","PlaNets"),
-    addtech("CentMed","EcoEng", "CentEmp"),
-    addtech("Brain",  "Psych",  "Biogen"),
-    addtech("Gene",   "Biogen", "EthCalc"),
-    addtech("BioEng", "Gene",   "Neural"),
-    addtech("BioMac", "MindMac","Viral"),
-    addtech("Neural", "Brain",  "IndAuto"),
-    addtech("Cyber",  "PlaNets","Integ"),
-    addtech("Eudaim", "SentEco","WillPow"),
-    addtech("WillPow","HomoSup","CentPsi"),
-    addtech("Thresh", "Create", "TempMec"),
-    addtech("Matter", "NanEdit","AlphCen"),
-    addtech("CentEmp","Brain",  "Ecology"),
-    addtech("EnvEcon","IndEcon","EcoEng"),
-    addtech("EcoEng", "Ecology","Gene"),
-    addtech("PlaEcon","EnvEcon","Integ"),
-    addtech("EcoEng2","Fusion", "EnvEcon"),
-    addtech("CentPsi","CentGen","EcoEng2"),
-    addtech("AlphCen","CentPsi","SentEco"),
-    addtech("Create", "Unified","WillPow"),
-    addtech("Space",  "Orbital","SupLube"),
-    addtech("HomoSup","BioMac", "DocInit"),
-    addtech("SupLube","Fusion", "Fossil"),
-    addtech("QuanMac","Quantum","Metal"),
-    addtech("NanEdit","HAL9000","Solids"),
-    addtech("OptComp","Physic", "Poly"),
-    addtech("IndRob", "NanoMin","IndAuto"),
-    addtech("CentGen","CentMed","Viral"),
-    addtech("SentEco","PlaEcon","DigSent"),
-    addtech("Viral",  "BioEng", "MilAlg"),
-    addtech("Orbital","DocAir", "Algor"),
-    addtech("TranT",  "Thresh", "ConSing")
+    addtech("Super",  "OptComp","Indust"),//Superconductor
+    addtech("Chaos",  "Physic", "InfNet"),//Nonlinear Mathematics
+    addtech("E=Mc2",  "Super",  "Subat"),//Applied Relativity
+    addtech("Fusion", "Algor",  "Super"),//Fusion Power
+    addtech("Alloys", "Subat",  "IndAuto"),//Silksteel Alloys
+    addtech("Subat",  "Chemist","Poly"),//Advanced Subatomic Theory
+    addtech("Chemist","Indust", "Physic"),//High Energy Chemistry
+    addtech("Surface","Unified","IndRob"),//Frictionless Surfaces
+    addtech("Metal",  "ProbMec","DocInit"),//Nanometallurgy
+    addtech("String", "Chaos",  "Cyber"),//Superstring Theory
+    addtech("MilAlg", "DocFlex","OptComp"),//Advanced Military Algorithms
+    addtech("Magnets","String", "Alloys"),//Monopole Magnets
+    addtech("MatComp","Metal",  "NanoMin"),//Matter Compression
+    addtech("Unified","Magnets","E=Mc2"),//Unified Field Theory
+    addtech("Gravity","QuanMac","MindMac"),//Graviton Theory
+    addtech("Poly",   "Indust", "InfNet"),//Polymorphic Software
+    addtech("AGrav",  "Gravity","DigSent"),//Applied Gravitonics
+    addtech("Quantum","Surface","PlaEcon"),//Quantum Power
+    addtech("SingMec","Create", "HAL9000"),//Singularity Mechanics
+    addtech("ConSing","SingMec","AGrav"),//Controlled Singularity
+    addtech("TempMec","Eudaim", "Matter"),//Temporal Mechanics
+    addtech("ProbMec","DocSec", "Algor"),//Probability Mechanics
+    addtech("Algor",  "MilAlg", "Cyber"),//Pre-Sentient Algorithms
+    addtech("Solids", "MatComp","Space"),//Super Tensile Solids
+    addtech("PlaNets","InfNet", "None"),//Planetary Networks
+    addtech("DigSent","IndRob", "MindMac"),//Digital Sentience
+    addtech("HAL9000","Space",  "DigSent"),//Self-Aware Machines
+    addtech("DocInit","DocFlex","IndAuto"),//Doctrine: Initiative
+    addtech("DocFlex","Mobile", "None"),//Doctrine: Flexibility
+    addtech("Integ",  "EthCalc","DocLoy"),//Intellectual Integrity
+    addtech("Fossil", "Chemist","Gene"),//Synthetic Fossil Fuels
+    addtech("DocAir", "Fossil","DocFlex"),//Doctrine: Air Power
+    addtech("DocSec", "E=Mc2",  "Alloys"),//Photon/Wave Mechanics
+    addtech("MindMac","DocAir", "Neural"),//Mind/Machine Interface
+    addtech("NanoMin","Magnets","SupLube"),//Nanominiaturization
+    addtech("DocLoy", "Mobile", "Psych"),//Doctrine: Loyalty
+    addtech("EthCalc","Psych",  "None"),//Ethical Calculus
+    addtech("IndEcon","Indust", "None"),//Industrial Economics
+    addtech("IndAuto","IndEcon","PlaNets"),//Industrial Automation
+    addtech("CentMed","EcoEng", "CentEmp"),//Centauri Meditation
+    addtech("Brain",  "Psych",  "Biogen"),//Secrets of the Human Brain
+    addtech("Gene",   "Biogen", "EthCalc"),//Gene Splicing
+    addtech("BioEng", "Gene",   "Neural"),//Bio-Engineering
+    addtech("BioMac", "MindMac","Viral"),//Biomachinery
+    addtech("Neural", "Brain",  "IndAuto"),//Neural Grafting
+    addtech("Cyber",  "PlaNets","Integ"),//Cyberethics
+    addtech("Eudaim", "SentEco","WillPow"),//Eudaimonia
+    addtech("WillPow","HomoSup","CentPsi"),//The Will to Power
+    addtech("Thresh", "Create", "TempMec"),//Threshold of Transcendence
+    addtech("Matter", "NanEdit","AlphCen"),//Matter Transmission
+    addtech("CentEmp","Brain",  "Ecology"),//Centauri Empathy
+    addtech("EnvEcon","IndEcon","EcoEng"),//Environmental Economics
+    addtech("EcoEng", "Ecology","Gene"),//Ecological Engineering
+    addtech("PlaEcon","EnvEcon","Integ"),//Planetary Economics
+    addtech("EcoEng2","Fusion", "EnvEcon"),//Adv. Ecological Engineering
+    addtech("CentPsi","CentGen","EcoEng2"),//Centauri Psi
+    addtech("AlphCen","CentPsi","SentEco"),//Secrets of Alpha Centauri
+    addtech("Create", "Unified","WillPow"),//Secrets of Creation
+    addtech("Space",  "Orbital","SupLube"),//Advanced Spaceflight
+    addtech("HomoSup","BioMac", "DocInit"),//Homo Superior
+    addtech("SupLube","Fusion", "Fossil"),//Organic Superlubricant
+    addtech("QuanMac","Quantum","Metal"),//Quantum Machinery
+    addtech("NanEdit","HAL9000","Solids"),//Matter Editation
+    addtech("OptComp","Physic", "Poly"),//Optical Computers
+    addtech("IndRob", "NanoMin","IndAuto"),//Industrial Nanorobotics
+    addtech("CentGen","CentMed","Viral"),//Centauri Genetics
+    addtech("SentEco","PlaEcon","DigSent"),//Sentient Econometrics
+    addtech("Viral",  "BioEng", "MilAlg"),//Retroviral Engineering
+    addtech("Orbital","DocAir", "Algor"),//Orbital Spaceflight
+    addtech("TranT",  "Thresh", "ConSing")//Transcendent Thought
   };
 
   int changed, aimil, aitech, aiinfra, aicolonize, total_techs = sizeof(techlist) / sizeof(techlist[0]);
@@ -122,13 +124,12 @@ int main() {
       }
 
       aimil = aitech = aiinfra = aicolonize = 0;
-      if (ptech > -1) {
-        if (aimil < techlist[ptech].aimil) aimil++;
-        if (aitech < techlist[ptech].aitech) aitech++;
-        if (aiinfra < techlist[ptech].aiinfra) aiinfra++;
-        if (aicolonize < techlist[ptech].aicolonize) aicolonize++;
-      }
 
+      //Find any "useful" priorities
+      if (aimil < techlist[ptech].aimil - 1) aimil++;
+      if (aitech < techlist[ptech].aitech - 1) aitech++;
+      if (aiinfra < techlist[ptech].aiinfra - 1) aiinfra++;
+      if (aicolonize < techlist[ptech].aicolonize - 1) aicolonize++;
       if (stech > -1) {
         if (aimil < techlist[stech].aimil - 1) aimil++;
         if (aitech < techlist[stech].aitech - 1) aitech++;
@@ -136,48 +137,41 @@ int main() {
         if (aicolonize < techlist[stech].aicolonize - 1) aicolonize++;
       }
 
-      if (ptech > -1) {
-        if (techlist[ptech].aimil >
-                 (techlist[ptech].aicolonize +
-                  techlist[ptech].aiinfra +
-                  techlist[ptech].aitech) / 3)
-          aimil++;
-        if (techlist[ptech].aitech >
-                 (techlist[ptech].aicolonize +
-                  techlist[ptech].aimil +
-                  techlist[ptech].aiinfra) / 3)
-          aitech++;
-        if (techlist[ptech].aiinfra >
-                 (techlist[ptech].aicolonize +
-                  techlist[ptech].aimil +
-                  techlist[ptech].aitech) / 3)
-          aiinfra++;
-        if (techlist[ptech].aicolonize >
-            (techlist[ptech].aimil +
-             techlist[ptech].aitech +
-             techlist[ptech].aiinfra) / 3)
-          aicolonize++;
-      }
+      //Find the primary tech priority and give it a big boost for this tech
+      if (techlist[ptech].aimil > techlist[ptech].aicolonize &&
+          techlist[ptech].aimil > techlist[ptech].aiinfra &&
+          techlist[ptech].aimil > techlist[ptech].aitech)
+        aimil += 3;
+      if (techlist[ptech].aitech > techlist[ptech].aicolonize &&
+          techlist[ptech].aitech > techlist[ptech].aiinfra &&
+          techlist[ptech].aitech > techlist[ptech].aimil)
+        aitech += 3;
+      if (techlist[ptech].aiinfra > techlist[ptech].aicolonize &&
+          techlist[ptech].aiinfra > techlist[ptech].aimil &&
+          techlist[ptech].aiinfra > techlist[ptech].aitech)
+        aiinfra += 3;
+      if (techlist[ptech].aicolonize > techlist[ptech].aimil &&
+          techlist[ptech].aicolonize > techlist[ptech].aiinfra &&
+          techlist[ptech].aicolonize > techlist[ptech].aitech)
+        aicolonize += 3;
+  
+      //Find the secondary tech priority and give it a small boost for this tech
       if (stech > -1) {
-        if (techlist[stech].aimil >
-            (techlist[stech].aicolonize +
-             techlist[stech].aiinfra +
-             techlist[stech].aitech) / 3)
+        if (techlist[stech].aimil > techlist[stech].aicolonize &&
+            techlist[stech].aimil > techlist[stech].aiinfra &&
+            techlist[stech].aimil > techlist[stech].aitech)
           aimil++;
-        if (techlist[stech].aitech >
-            (techlist[stech].aicolonize +
-             techlist[stech].aimil +
-             techlist[stech].aiinfra) / 3)
+        if (techlist[stech].aitech > techlist[stech].aicolonize &&
+            techlist[stech].aitech > techlist[stech].aiinfra &&
+            techlist[stech].aitech > techlist[stech].aimil)
           aitech++;
-        if (techlist[stech].aiinfra >
-            (techlist[stech].aicolonize +
-             techlist[stech].aimil +
-             techlist[stech].aitech) / 3)
+        if (techlist[stech].aiinfra > techlist[stech].aicolonize &&
+            techlist[stech].aiinfra > techlist[stech].aimil &&
+            techlist[stech].aiinfra > techlist[stech].aitech)
           aiinfra++;
-        if (techlist[stech].aicolonize >
-            (techlist[stech].aimil +
-             techlist[stech].aitech +
-             techlist[stech].aiinfra) / 3)
+        if (techlist[stech].aicolonize > techlist[stech].aimil &&
+            techlist[stech].aicolonize > techlist[stech].aiinfra &&
+            techlist[stech].aicolonize > techlist[stech].aitech)
           aicolonize++;
       }
 
@@ -191,6 +185,7 @@ int main() {
     }
   } while (changed);
 
+  //Print results to the console/terminal
   for (int i = 0; i < total_techs; i++) {
     printf("%s,%d,%d,%d,%d,%s,%s\n",
            techlist[i].name,
