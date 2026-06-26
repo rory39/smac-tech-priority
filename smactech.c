@@ -2,7 +2,8 @@
 #include <string.h>
 
 struct tech {
-  short status;// 1 is finished, 0 is not finished
+  int status;// 1 is finished, 0 is not finished
+  int tier;
   char name[16];// Tech name
   char req1[16];// (ptech) Primary tech
   char req2[16];// (stech) Secondary tech
@@ -24,16 +25,16 @@ int find_tech(struct tech list[], int count, const char* name) {
 }
 int main() {
 
-#define addtech(a,b,c) {0,a,b,c,0,0,0,0}
+#define addtech(a,b,c) {0,0,a,b,c,0,0,0,0}
 
   struct tech techlist[] = {
-    {1,"Biogen","None","None", 0,3,2,2},
-    {1,"Indust","None","None", 2,1,3,0},
-    {1,"InfNet","None","None", 0,3,2,1},
-    {1,"Physic","None","None", 4,2,1,0},
-    {1,"Psych","None","None",  0,1,3,2},
-    {1,"Mobile","None","None", 2,0,0,3},
-    {1,"Ecology","None","None",0,1,2,3},
+    {1,1,"Biogen","None","None", 0,3,2,2},
+    {1,1,"Indust","None","None", 2,1,3,0},
+    {1,1,"InfNet","None","None", 0,3,2,1},
+    {1,1,"Physic","None","None", 4,2,1,0},
+    {1,1,"Psych","None","None",  0,1,3,2},
+    {1,1,"Mobile","None","None", 2,0,0,3},
+    {1,1,"Ecology","None","None",0,1,2,3},
     addtech("Super",  "OptComp","Indust"),//Superconductor
     addtech("Chaos",  "Physic", "InfNet"),//Nonlinear Mathematics
     addtech("E=Mc2",  "Super",  "Subat"),//Applied Relativity
@@ -106,7 +107,8 @@ int main() {
     addtech("TranT",  "Thresh", "ConSing")//Transcendent Thought
   };
 
-  int changed, aimil, aitech, aiinfra, aicolonize, total_techs = sizeof(techlist) / sizeof(techlist[0]);
+  int changed, tier, total_techs = sizeof(techlist) / sizeof(techlist[0]);
+  int aimil, aitech, aiinfra, aicolonize;
 
   // Multi-pass resolution loop
   do {
@@ -114,7 +116,7 @@ int main() {
     for (int i = 0; i < total_techs; i++) {
       if (techlist[i].status == 1) continue; // Already calculated
 
-      int ptech = find_tech(techlist, total_techs, techlist[i].req1);
+      int ptech = find_tech(techlist, total_techs, techlist[i].req1), tech1, tech2, tech3;
       int stech = find_tech(techlist, total_techs, techlist[i].req2);
 
       // Skip this tech for now if its prerequisites haven't finished computing yet
@@ -124,55 +126,57 @@ int main() {
       }
 
       aimil = aitech = aiinfra = aicolonize = 0;
-
-      //Find any "useful" priorities
-      if (aimil < techlist[ptech].aimil - 1) aimil++;
-      if (aitech < techlist[ptech].aitech - 1) aitech++;
-      if (aiinfra < techlist[ptech].aiinfra - 1) aiinfra++;
-      if (aicolonize < techlist[ptech].aicolonize - 1) aicolonize++;
-      if (stech > -1) {
-        if (aimil < techlist[stech].aimil - 1) aimil++;
-        if (aitech < techlist[stech].aitech - 1) aitech++;
-        if (aiinfra < techlist[stech].aiinfra - 1) aiinfra++;
-        if (aicolonize < techlist[stech].aicolonize - 1) aicolonize++;
+      tech1 = find_tech(techlist, total_techs, techlist[i].req1);
+      tech2 = find_tech(techlist, total_techs, techlist[tech1].req1);
+      tier = techlist[tech1].tier;
+      // Later techs are a higher tier than earlier ones.
+      // Tier affects tech priority values.
+      if (tech2 != - 1) {
+        if (techlist[tech1].tier == techlist[tech2].tier) {
+          tier++;
+        }
       }
 
-      //Find the primary tech priority and give it a big boost for this tech
+      //Find any "useful" priorities
+      if (techlist[ptech].aimil > 1) aimil++;
+      if (techlist[ptech].aitech > 1) aitech++;
+      if (techlist[ptech].aiinfra > 1) aiinfra++;
+      if (techlist[ptech].aicolonize > 1) aicolonize++;
+      if (stech > -1) {
+        if (techlist[stech].aimil > 1) aimil++;
+        if (techlist[stech].aitech > 1) aitech++;
+        if (techlist[stech].aiinfra > 1) aiinfra++;
+        if (techlist[stech].aicolonize > 1) aicolonize++;
+      }
       if (techlist[ptech].aimil > techlist[ptech].aicolonize &&
           techlist[ptech].aimil > techlist[ptech].aiinfra &&
           techlist[ptech].aimil > techlist[ptech].aitech)
-        aimil += 3;
+        aimil += tier;
       if (techlist[ptech].aitech > techlist[ptech].aicolonize &&
           techlist[ptech].aitech > techlist[ptech].aiinfra &&
           techlist[ptech].aitech > techlist[ptech].aimil)
-        aitech += 3;
+        aitech += tier;
       if (techlist[ptech].aiinfra > techlist[ptech].aicolonize &&
           techlist[ptech].aiinfra > techlist[ptech].aimil &&
           techlist[ptech].aiinfra > techlist[ptech].aitech)
-        aiinfra += 3;
+        aiinfra += tier;
       if (techlist[ptech].aicolonize > techlist[ptech].aimil &&
           techlist[ptech].aicolonize > techlist[ptech].aiinfra &&
           techlist[ptech].aicolonize > techlist[ptech].aitech)
-        aicolonize += 3;
-  
-      //Find the secondary tech priority and give it a small boost for this tech
+        aicolonize += tier;
       if (stech > -1) {
         if (techlist[stech].aimil > techlist[stech].aicolonize &&
             techlist[stech].aimil > techlist[stech].aiinfra &&
-            techlist[stech].aimil > techlist[stech].aitech)
-          aimil++;
+            techlist[stech].aimil > techlist[stech].aitech) aimil++;
         if (techlist[stech].aitech > techlist[stech].aicolonize &&
             techlist[stech].aitech > techlist[stech].aiinfra &&
-            techlist[stech].aitech > techlist[stech].aimil)
-          aitech++;
+            techlist[stech].aitech > techlist[stech].aimil) aitech++;
         if (techlist[stech].aiinfra > techlist[stech].aicolonize &&
             techlist[stech].aiinfra > techlist[stech].aimil &&
-            techlist[stech].aiinfra > techlist[stech].aitech)
-          aiinfra++;
+            techlist[stech].aiinfra > techlist[stech].aitech) aiinfra++;
         if (techlist[stech].aicolonize > techlist[stech].aimil &&
             techlist[stech].aicolonize > techlist[stech].aiinfra &&
-            techlist[stech].aicolonize > techlist[stech].aitech)
-          aicolonize++;
+            techlist[stech].aicolonize > techlist[stech].aitech) aicolonize++;
       }
 
       // Save results and mark progress
@@ -181,11 +185,11 @@ int main() {
       techlist[i].aiinfra = aiinfra;
       techlist[i].aicolonize = aicolonize;
       techlist[i].status = 1;
+      techlist[i].tier = tier;
       changed = 1;
     }
   } while (changed);
 
-  //Print results to the console/terminal
   for (int i = 0; i < total_techs; i++) {
     printf("%s,%d,%d,%d,%d,%s,%s\n",
            techlist[i].name,
