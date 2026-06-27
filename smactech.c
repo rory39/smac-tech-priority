@@ -3,7 +3,6 @@
 
 struct tech {
   int status;// 1 is finished, 0 is not finished
-  int tier;
   char name[16];// Tech name
   char req1[16];// (ptech) Primary tech
   char req2[16];// (stech) Secondary tech
@@ -22,6 +21,14 @@ int find_tech(struct tech list[], int count, const char* name) {
     }
   }
   return -1;
+}
+int min_priority(int limit)
+{
+  int num = 0;
+  if (num < limit * 2 / 3) num++;
+  if (num < limit * 3 / 4) num++;
+  if (num < limit * 4 / 5) num++;
+  return num;
 }
 int main() {
 
@@ -107,7 +114,7 @@ int main() {
     addtech("TranT",  "Thresh", "ConSing")//Transcendent Thought
   };
 
-  int changed, tier, total_techs = sizeof(techlist) / sizeof(techlist[0]);
+    int changed, total_techs = sizeof(techlist) / sizeof(techlist[0]);
   int aimil, aitech, aiinfra, aicolonize;
 
   // Multi-pass resolution loop
@@ -116,8 +123,9 @@ int main() {
     for (int i = 0; i < total_techs; i++) {
       if (techlist[i].status == 1) continue; // Already calculated
 
-      int ptech = find_tech(techlist, total_techs, techlist[i].req1), tech1, tech2, tech3;
+      int ptech = find_tech(techlist, total_techs, techlist[i].req1);
       int stech = find_tech(techlist, total_techs, techlist[i].req2);
+      int focus1 = 0, focus2 = 0;
 
       // Skip this tech for now if its prerequisites haven't finished computing yet
       if ((ptech != -1 && techlist[ptech].status == 0) || 
@@ -126,57 +134,113 @@ int main() {
       }
 
       aimil = aitech = aiinfra = aicolonize = 0;
-      tech1 = find_tech(techlist, total_techs, techlist[i].req1);
-      tech2 = find_tech(techlist, total_techs, techlist[tech1].req1);
-      tier = techlist[tech1].tier;
-      // Later techs are a higher tier than earlier ones.
-      // Tier affects tech priority values.
-      if (tech2 != - 1) {
-        if (techlist[tech1].tier == techlist[tech2].tier) {
-          tier++;
-        }
+ 
+      //Find any "useful" priorities
+
+      if (stech != -1) {
+        aimil = min_priority((techlist[ptech].aimil + techlist[stech].aimil) / 2 + 1);
+        aitech = min_priority((techlist[ptech].aitech + techlist[stech].aitech) / 2 + 1);
+        aiinfra = min_priority((techlist[ptech].aiinfra + techlist[stech].aiinfra) / 2 + 1);
+        aicolonize = min_priority((techlist[ptech].aicolonize + techlist[stech].aicolonize) / 2 + 1);
+      } else {
+        aimil = min_priority(techlist[ptech].aimil);
+        aitech = min_priority(techlist[ptech].aitech);
+        aiinfra = min_priority(techlist[ptech].aiinfra);
+        aicolonize = min_priority(techlist[ptech].aicolonize);
       }
 
-      //Find any "useful" priorities
-      if (techlist[ptech].aimil > 1) aimil++;
-      if (techlist[ptech].aitech > 1) aitech++;
-      if (techlist[ptech].aiinfra > 1) aiinfra++;
-      if (techlist[ptech].aicolonize > 1) aicolonize++;
-      if (stech > -1) {
-        if (techlist[stech].aimil > 1) aimil++;
-        if (techlist[stech].aitech > 1) aitech++;
-        if (techlist[stech].aiinfra > 1) aiinfra++;
-        if (techlist[stech].aicolonize > 1) aicolonize++;
-      }
       if (techlist[ptech].aimil > techlist[ptech].aicolonize &&
           techlist[ptech].aimil > techlist[ptech].aiinfra &&
-          techlist[ptech].aimil > techlist[ptech].aitech)
-        aimil += tier;
+          techlist[ptech].aimil > techlist[ptech].aitech) focus1 = 1;
       if (techlist[ptech].aitech > techlist[ptech].aicolonize &&
           techlist[ptech].aitech > techlist[ptech].aiinfra &&
-          techlist[ptech].aitech > techlist[ptech].aimil)
-        aitech += tier;
+          techlist[ptech].aitech > techlist[ptech].aimil) focus1 = 2;
       if (techlist[ptech].aiinfra > techlist[ptech].aicolonize &&
           techlist[ptech].aiinfra > techlist[ptech].aimil &&
-          techlist[ptech].aiinfra > techlist[ptech].aitech)
-        aiinfra += tier;
+          techlist[ptech].aiinfra > techlist[ptech].aitech) focus1 = 3;
       if (techlist[ptech].aicolonize > techlist[ptech].aimil &&
           techlist[ptech].aicolonize > techlist[ptech].aiinfra &&
-          techlist[ptech].aicolonize > techlist[ptech].aitech)
-        aicolonize += tier;
+          techlist[ptech].aicolonize > techlist[ptech].aitech) focus1 = 4;
       if (stech > -1) {
         if (techlist[stech].aimil > techlist[stech].aicolonize &&
             techlist[stech].aimil > techlist[stech].aiinfra &&
-            techlist[stech].aimil > techlist[stech].aitech) aimil++;
+            techlist[stech].aimil > techlist[stech].aitech) focus2 = 1;
         if (techlist[stech].aitech > techlist[stech].aicolonize &&
             techlist[stech].aitech > techlist[stech].aiinfra &&
-            techlist[stech].aitech > techlist[stech].aimil) aitech++;
+            techlist[stech].aitech > techlist[stech].aimil) focus2 = 2;
         if (techlist[stech].aiinfra > techlist[stech].aicolonize &&
             techlist[stech].aiinfra > techlist[stech].aimil &&
-            techlist[stech].aiinfra > techlist[stech].aitech) aiinfra++;
+            techlist[stech].aiinfra > techlist[stech].aitech) focus2 = 3;
         if (techlist[stech].aicolonize > techlist[stech].aimil &&
             techlist[stech].aicolonize > techlist[stech].aiinfra &&
-            techlist[stech].aicolonize > techlist[stech].aitech) aicolonize++;
+            techlist[stech].aicolonize > techlist[stech].aitech) focus2 = 4;
+      }
+
+      if (focus2 == 0) {
+        if (focus1 == 1) aimil += 2;
+        else if (focus1 == 2) aitech += 2;
+        else if (focus1 == 3) aiinfra += 2;
+        else if (focus1 == 4) aicolonize += 2;
+      } else if (focus2 == 1) {
+        if (focus1 == 1) {
+          aimil += 3;
+        } else if (focus1 == 2) {
+          aitech += 2;
+          aimil += 1;
+        } else if (focus1 == 3) {
+          aiinfra += 2;
+          aimil += 1;
+        } else if (focus1 == 4) {
+          aicolonize += 2;
+          aimil += 1;
+        } else {
+          aimil += 2;
+        }
+      } else if (focus2 == 2) {
+        if (focus1 == 1) {
+          aimil += 2;
+          aitech += 1;
+        } else if (focus1 == 2) {
+          aitech += 3;
+        } else if (focus1 == 3) {
+          aiinfra += 2;
+          aitech += 1;
+        } else if (focus1 == 4) {
+          aicolonize += 2;
+          aitech += 1;
+        } else {
+          aitech += 2;
+        }
+      } else if (focus2 == 3) {
+        if (focus1 == 1) {
+          aimil += 2;
+          aiinfra += 1;
+        } else if (focus1 == 2) {
+          aitech += 2;
+          aiinfra += 1;
+        } else if (focus1 == 3) {
+          aiinfra += 3;
+        } else if (focus1 == 4) {
+          aicolonize += 2;
+          aiinfra += 1;
+        } else {
+          aiinfra += 2;
+        }
+      } else if (focus2 == 4) {
+        if (focus1 == 1) {
+          aimil += 2;
+          aicolonize += 1;
+        } else if (focus1 == 2) {
+          aitech += 2;
+          aicolonize += 1;
+        } else if (focus1 == 3) {
+          aiinfra += 2;
+          aicolonize += 1;
+        } else if (focus1 == 4) {
+          aicolonize += 3;
+        } else {
+          aicolonize += 2;
+        }
       }
 
       // Save results and mark progress
@@ -185,7 +249,6 @@ int main() {
       techlist[i].aiinfra = aiinfra;
       techlist[i].aicolonize = aicolonize;
       techlist[i].status = 1;
-      techlist[i].tier = tier;
       changed = 1;
     }
   } while (changed);
