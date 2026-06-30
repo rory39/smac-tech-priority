@@ -25,17 +25,6 @@ int find_tech(struct tech list[], int count, const char* name) {
   }
   return -1;
 }
-int min_priority(int limit)
-{
-  int num = 0, i;
-
-  for (i = 1;i <= maxPriority;i++) {
-    if (num < limit * (i - 1) / i) {
-      num++;
-    }
-  }
-  return num;
-}
 int main() {
   struct tech techlist[] = {
     {1,"Biogen","None","None", 0,3,2,2},
@@ -127,155 +116,100 @@ int main() {
 
       int ptech = find_tech(techlist, total_techs, techlist[i].req1);
       int stech = find_tech(techlist, total_techs, techlist[i].req2);
-      int focus1 = 0, focus2 = 0;
+      int focus;
 
       // Skip this tech for now if its prerequisites haven't finished computing yet
       if ((ptech != -1 && techlist[ptech].status == 0) || 
           (stech != -1 && techlist[stech].status == 0)) {
         continue;
       }
-
-      //Find any "useful" priorities
-
-      aimil = min_priority(techlist[ptech].aimil);
-      aitech = min_priority(techlist[ptech].aitech);
-      aiinfra = min_priority(techlist[ptech].aiinfra);
-      aicolonize = min_priority(techlist[ptech].aicolonize);
+      if (techlist[i].aimil < techlist[ptech].aimil - 1) techlist[i].aimil = techlist[ptech].aimil - 1;
+      if (techlist[i].aitech < techlist[ptech].aitech - 1) techlist[i].aitech = techlist[ptech].aitech - 1;
+      if (techlist[i].aiinfra < techlist[ptech].aiinfra - 1) techlist[i].aiinfra = techlist[ptech].aiinfra - 1;
+      if (techlist[i].aicolonize < techlist[ptech].aicolonize - 1) techlist[i].aicolonize = techlist[ptech].aicolonize - 1;
       if (stech != -1) {
-        if (min_priority(techlist[ptech].aimil) < min_priority(techlist[stech].aimil)) aimil = min_priority(techlist[stech].aimil);
-        if (min_priority(techlist[ptech].aitech) < min_priority(techlist[stech].aitech)) aitech = min_priority(techlist[stech].aitech);
-        if (min_priority(techlist[ptech].aiinfra) < min_priority(techlist[stech].aiinfra)) aiinfra = min_priority(techlist[stech].aiinfra);
-        if (min_priority(techlist[ptech].aicolonize) < min_priority(techlist[stech].aicolonize)) aicolonize = min_priority(techlist[stech].aicolonize);
+        if (techlist[i].aimil < techlist[stech].aimil - 1) techlist[i].aimil = techlist[stech].aimil - 1;
+        if (techlist[i].aitech < techlist[stech].aitech - 1) techlist[i].aitech = techlist[stech].aitech - 1;
+        if (techlist[i].aiinfra < techlist[stech].aiinfra - 1) techlist[i].aiinfra = techlist[stech].aiinfra - 1;
+        if (techlist[i].aicolonize < techlist[stech].aicolonize - 1) techlist[i].aicolonize = techlist[stech].aicolonize - 1;
       }
 
       if (techlist[ptech].aimil > techlist[ptech].aicolonize &&
           techlist[ptech].aimil > techlist[ptech].aiinfra &&
           techlist[ptech].aimil > techlist[ptech].aitech) {
-        focus1 = 1;
+        techlist[i].aimil = maxPriority;
+        aimil = maxPriority - 1;
+        focus = find_tech(techlist, total_techs, techlist[i].req1);
+        for (;techlist[focus].aimil < aimil && aimil > 0 && find_tech(techlist, total_techs, techlist[focus].req1) > -1;) {
+          techlist[focus].aimil = aimil;
+          aimil = aimil - 1;
+          focus = find_tech(techlist, total_techs, techlist[focus].req1);
+        }
+        aimil = maxPriority - 1;
+        focus = find_tech(techlist, total_techs, techlist[i].req2);
+        for (;techlist[focus].aimil < aimil && aimil > 0 && find_tech(techlist, total_techs, techlist[focus].req1) > -1;) {
+          techlist[focus].aimil = aimil;
+          aimil = aimil - 1;
+          focus = find_tech(techlist, total_techs, techlist[focus].req1);
+        }
       }
       if (techlist[ptech].aitech > techlist[ptech].aicolonize &&
           techlist[ptech].aitech > techlist[ptech].aiinfra &&
           techlist[ptech].aitech > techlist[ptech].aimil) {
-        focus1 = 2;
+        techlist[i].aitech = maxPriority;
+        aitech = maxPriority - 1;
+        focus = find_tech(techlist, total_techs, techlist[i].req1);
+        for (;techlist[focus].aitech < aitech && aitech > 0 && find_tech(techlist, total_techs, techlist[focus].req1) > -1;) {
+          techlist[focus].aitech = aitech;
+          aitech = aitech - 1;
+          focus = find_tech(techlist, total_techs, techlist[focus].req1);
+        }
+        aitech = maxPriority - 1;
+        focus = find_tech(techlist, total_techs, techlist[i].req2);
+        for (;techlist[focus].aitech < aitech && aitech > 0 && find_tech(techlist, total_techs, techlist[focus].req1) > -1;) {
+          techlist[focus].aitech = aitech;
+          aitech = aitech - 1;
+          focus = find_tech(techlist, total_techs, techlist[focus].req1);
+        }
       }
       if (techlist[ptech].aiinfra > techlist[ptech].aicolonize &&
           techlist[ptech].aiinfra > techlist[ptech].aimil &&
           techlist[ptech].aiinfra > techlist[ptech].aitech) {
-        focus1 = 3;
+        techlist[i].aiinfra = maxPriority;
+        aiinfra = maxPriority - 1;
+        focus = find_tech(techlist, total_techs, techlist[i].req1);
+        for (;techlist[focus].aiinfra < aiinfra && aiinfra > 0 && find_tech(techlist, total_techs, techlist[focus].req1) > -1;) {
+          techlist[focus].aiinfra = aiinfra;
+          aiinfra = aiinfra - 1;
+          focus = find_tech(techlist, total_techs, techlist[focus].req1);
+        }
+        aiinfra = maxPriority - 1;
+        focus = find_tech(techlist, total_techs, techlist[i].req2);
+        for (;techlist[focus].aiinfra < aiinfra && aiinfra > 0 && find_tech(techlist, total_techs, techlist[focus].req1) > -1;) {
+          techlist[focus].aiinfra = aiinfra;
+          aiinfra = aiinfra - 1;
+          focus = find_tech(techlist, total_techs, techlist[focus].req1);
+        }
       }
       if (techlist[ptech].aicolonize > techlist[ptech].aimil &&
           techlist[ptech].aicolonize > techlist[ptech].aiinfra &&
           techlist[ptech].aicolonize > techlist[ptech].aitech) {
-        focus1 = 4;
-      }
-      if (stech > -1) {
-        if (techlist[stech].aimil > techlist[stech].aicolonize &&
-            techlist[stech].aimil > techlist[stech].aiinfra &&
-            techlist[stech].aimil > techlist[stech].aitech) {
-          focus2 = 1;
+        techlist[i].aicolonize = maxPriority;
+        aicolonize = maxPriority - 1;
+        focus = find_tech(techlist, total_techs, techlist[i].req1);
+        for (;techlist[focus].aicolonize < aicolonize && aicolonize > 0 && find_tech(techlist, total_techs, techlist[focus].req1) > -1;) {
+          techlist[focus].aicolonize = aicolonize;
+          aicolonize = aicolonize - 1;
+          focus = find_tech(techlist, total_techs, techlist[focus].req1);
         }
-        if (techlist[stech].aitech > techlist[stech].aicolonize &&
-            techlist[stech].aitech > techlist[stech].aiinfra &&
-            techlist[stech].aitech > techlist[stech].aimil) {
-          focus2 = 2;
-        }
-        if (techlist[stech].aiinfra > techlist[stech].aicolonize &&
-            techlist[stech].aiinfra > techlist[stech].aimil &&
-            techlist[stech].aiinfra > techlist[stech].aitech) {
-          focus2 = 3;
-        }
-        if (techlist[stech].aicolonize > techlist[stech].aimil &&
-            techlist[stech].aicolonize > techlist[stech].aiinfra &&
-            techlist[stech].aicolonize > techlist[stech].aitech) {
-          focus2 = 4;
+        aicolonize = maxPriority - 1;
+        focus = find_tech(techlist, total_techs, techlist[i].req2);
+        for (;techlist[focus].aicolonize < aicolonize && aicolonize > 0 && find_tech(techlist, total_techs, techlist[focus].req1) > -1;) {
+          techlist[focus].aicolonize = aicolonize;
+          aicolonize = aicolonize - 1;
+          focus = find_tech(techlist, total_techs, techlist[focus].req1);
         }
       }
-
-      if (focus1 == 1) {
-        switch (focus2) {
-          case 2:
-            if (techlist[ptech].aimil < techlist[stech].aitech) aitech = maxPriority;
-            else aimil = maxPriority;
-            break;
-          case 3:
-            if (techlist[ptech].aimil < techlist[stech].aiinfra) aiinfra = maxPriority;
-            else aimil = maxPriority;
-            break;
-          case 4:
-            if (techlist[ptech].aimil < techlist[stech].aicolonize) aicolonize = maxPriority;
-            else aimil = maxPriority;
-            break;
-          default:
-            aimil = maxPriority;
-            break;
-        }
-      } else if (focus1 == 2) {
-        switch (focus2) {
-          case 1:
-            if (techlist[ptech].aitech < techlist[stech].aimil) aimil = maxPriority;
-            else aitech = maxPriority;
-            break;
-          case 3:
-            if (techlist[ptech].aitech < techlist[stech].aiinfra) aiinfra = maxPriority;
-            else aitech = maxPriority;
-            break;
-          case 4:
-            if (techlist[ptech].aitech < techlist[stech].aicolonize) aicolonize = maxPriority;
-            else aitech = maxPriority;
-            break;
-          default:
-            aitech = maxPriority;
-            break;
-        }
-      } else if (focus1 == 3) {
-        switch (focus2) {
-          case 1:
-            if (techlist[ptech].aiinfra < techlist[stech].aimil) aimil = maxPriority;
-            else aiinfra = maxPriority;
-            break;
-          case 2:
-            if (techlist[ptech].aiinfra < techlist[stech].aitech) aitech = maxPriority;
-            else aiinfra = maxPriority;
-            break;
-          case 4:
-            if (techlist[ptech].aiinfra < techlist[stech].aicolonize) aicolonize = maxPriority;
-            else aiinfra = maxPriority;
-            break;
-          default:
-            aiinfra = maxPriority;
-            break;
-        }
-      } else if (focus1 == 4) {
-        switch (focus2) {
-          case 1:
-            if (techlist[ptech].aicolonize < techlist[stech].aimil) aimil = maxPriority;
-            else aicolonize = maxPriority;
-            break;
-          case 2:
-            if (techlist[ptech].aicolonize < techlist[stech].aitech) aitech = maxPriority;
-            else aicolonize = maxPriority;
-            break;
-          case 3:
-            if (techlist[ptech].aicolonize < techlist[stech].aiinfra) aiinfra = maxPriority;
-            else aicolonize = maxPriority;
-            break;
-          default:
-            aicolonize = maxPriority;
-            break;
-        }
-      } else {
-        switch (focus2) {
-          case 1: aimil = maxPriority; break;
-          case 2: aitech = maxPriority; break;
-          case 3: aiinfra = maxPriority; break;
-          case 4: aicolonize = maxPriority; break;
-        }
-      }
-      // Save results and mark progress
-      techlist[i].aimil = aimil;
-      techlist[i].aitech = aitech;
-      techlist[i].aiinfra = aiinfra;
-      techlist[i].aicolonize = aicolonize;
       techlist[i].status = 1;
       changed = 1;
     }
@@ -291,6 +225,9 @@ int main() {
            techlist[i].req1,
            techlist[i].req2);
   }
+
+  return 0;
+}
 
   return 0;
 }
